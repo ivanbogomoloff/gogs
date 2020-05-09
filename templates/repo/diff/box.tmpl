@@ -95,6 +95,14 @@
 						<div class="file-body file-code code-view code-diff">
 							{{if $.IsEnabledCommentsPullRequest}}
 							<button class="ui compact icon mini button" id="code-diff-add-comment" style="position: absolute; display: none"><i class="add icon"></i></button>
+							<div id="comment-code-line-form" style="display: none">
+								<div class="ui form">
+									<div class="field">
+										<label>Code line comment:</label>
+										<textarea rows="2"></textarea>
+									</div>
+								</div>
+							</div>
 							{{end}}
 							<table>
 								<tbody>
@@ -172,6 +180,10 @@
 				add_btn.show();
 			}).mouseleave( function() {
 				add_btn.hide();
+			});
+
+			add_btn.on('click', function() {
+
 			});
 
 			let add_btn_width = add_btn.width() * 2 * - 1;
