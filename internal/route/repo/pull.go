@@ -376,6 +376,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsSplitStyle"] = c.Query("style") == "split"
 	c.Data["IsImageFile"] = commit.IsImageFile
 	c.Data["IsImageFileByIndex"] = commit.IsImageFileByIndex
+	c.Data["IsEnabledCommentsPullRequest"] = true //todo move this settings to user db
 
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {

@@ -93,6 +93,9 @@
 						</div>
 					{{else}}
 						<div class="file-body file-code code-view code-diff">
+							{{if $.IsEnabledCommentsPullRequest}}
+							<button class="ui compact icon mini button" id="code-diff-add-comment" style="position: absolute; display: none"><i class="add icon"></i></button>
+							{{end}}
 							<table>
 								<tbody>
 									{{if $.IsSplitStyle}}
@@ -158,6 +161,39 @@
 					}
 				});
 			}());
+		</script>
+	{{end}}
+
+	{{if .IsEnabledCommentsPullRequest}}
+  	<script>
+		$(function() {
+			let add_btn = $('#code-diff-add-comment');
+			add_btn.mouseenter( function(e) {
+				add_btn.show();
+			}).mouseleave( function() {
+				add_btn.hide();
+			});
+
+			let add_btn_width = add_btn.width() * 2 * - 1;
+			var current_line = 0;
+			$('.code-diff table tr')
+			.mouseenter( function(e) {
+				var line_number_Base = $(this).find('td[data-line-number]').first();
+				if(line_number_Base[0] == undefined) {
+					return;
+				}
+				current_line = line_number_Base.data('line-number');
+				console.log(current_line);
+				add_btn.css({
+					left: add_btn_width+'px',
+					top: Math.abs(add_btn.parent()[0].getBoundingClientRect().y - line_number_Base[0].getBoundingClientRect().y) + 'px'
+				});
+				add_btn.show();
+			} )
+			.mouseleave( function() {
+				add_btn.hide();
+			});
+		});
 		</script>
 	{{end}}
 {{end}}
