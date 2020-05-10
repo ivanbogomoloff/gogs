@@ -165,14 +165,37 @@
 	{{end}}
 
 	{{if .IsEnabledCommentsPullRequest}}
+		<style>
+			.comment-code-line-wrapper {
+				padding: 10px !important;
+			}
+		</style>
 	  <div id="pr-comments-templates" style="display:none">
 			<!-- Comment input form -->
 			<div id="comment-code-line-form" style="display: none">
-				<div class="ui form code-line-comment-form">
-					<div class="field code-line-comment-input">
-						<label class="code-line-comment-label">Code line comment:</label>
-						<textarea rows="2" class="code-line-comment-textarea"></textarea>
+				<form class="ui form" id="comment-form" action="{{.CodeCommentLink}}" method="post">
+					<div class="field">
+						<div class="ui top attached tabular menu" data-write="write" data-preview="preview">
+							<a class="active item" data-tab="write">{{.i18n.Tr "repo.issues.create_comment"}}</a>
+							<a class="item" data-tab="preview" data-url="{{AppSubURL}}/api/v1/markdown" data-context="{{.RepoLink}}">{{.i18n.Tr "repo.release.preview"}}</a>
+						</div>
+						<div class="ui bottom attached active tab segment" data-tab="write">
+							<textarea id="content" class="edit_area" name="content" tabindex="4" data-id="issue-{{.RepoName}}" data-url="{{AppSubURL}}/api/v1/markdown" data-context="{{.Repo.RepoLink}}"></textarea>
+						</div>
+						<div class="ui bottom attached tab segment markdown" data-tab="preview">
+							{{.i18n.Tr "repo.release.loading"}}
+						</div>
 					</div>
+					{{.CSRFTokenHTML}}
+					<div class="text right">
+						<button class="ui red basic button" tabindex="5">
+							{{.i18n.Tr "cancel"}}
+						</button>
+						<button class="ui green button" tabindex="5">
+							{{.i18n.Tr "repo.issues.create_comment"}}
+						</button>
+					</div>
+				</form>
 				</div>
 			</div>
 		</div>
@@ -190,14 +213,13 @@
 
 			add_btn.on('click', function() {
 				let selected_line_num = $(this).data('line-number');
+				let file_id = $(this).data('file-id');
 				let hovered_tr = code_diff_table_trs
 					.find('td[data-line-number='+selected_line_num+']')
 					.parent();
 				let col_span = hovered_tr.find('td').length
 				let comment_block = $(add_comment_form);
-				comment_block.data('line-number', selected_line_num);
-				comment_block.attr('id', 'comment-code-line-'+selected_line_num);
-				let wrap = '<tr><td colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
+				let wrap = '<tr data-comment-line-number="'+selected_line_num+'" id="file-'+file_id+'-ccl-line-'+selected_line_num+'" class="comment-code-line"><td class="comment-code-line-wrapper" colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
 				hovered_tr.after(wrap);
 			});
 
@@ -212,7 +234,8 @@
 					left: add_btn_width+'px',
 					top: Math.abs(add_btn.parent()[0].getBoundingClientRect().y - line_number_Base[0].getBoundingClientRect().y) + 'px'
 				});
-				add_btn.data('line-number', line_number_Base.data('line-number'))
+				add_btn.data('line-number', line_number_Base.data('line-number'));
+				add_btn.data('file-id', line_number_Base.prop('id'));
 				add_btn.show();
 			} )
 			.mouseleave( function() {
