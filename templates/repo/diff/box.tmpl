@@ -95,14 +95,6 @@
 						<div class="file-body file-code code-view code-diff">
 							{{if $.IsEnabledCommentsPullRequest}}
 							<button class="ui compact icon mini button" id="code-diff-add-comment" style="position: absolute; display: none"><i class="add icon"></i></button>
-							<div id="comment-code-line-form" style="display: none">
-								<div class="ui form">
-									<div class="field">
-										<label>Code line comment:</label>
-										<textarea rows="2"></textarea>
-									</div>
-								</div>
-							</div>
 							{{end}}
 							<table>
 								<tbody>
@@ -132,7 +124,7 @@
 											{{end}}
 										{{end}}
 									{{else}}
-										{{template "repo/diff/section_unified" .}}
+										{{template "repo/diff/section_unified" . }}
 									{{end}}
 								</tbody>
 							</table>
@@ -173,9 +165,23 @@
 	{{end}}
 
 	{{if .IsEnabledCommentsPullRequest}}
+	  <div id="pr-comments-templates" style="display:none">
+			<!-- Comment input form -->
+			<div id="comment-code-line-form" style="display: none">
+				<div class="ui form code-line-comment-form">
+					<div class="field code-line-comment-input">
+						<label class="code-line-comment-label">Code line comment:</label>
+						<textarea rows="2" class="code-line-comment-textarea"></textarea>
+					</div>
+				</div>
+			</div>
+		</div>
   	<script>
 		$(function() {
+			let tpl_container = $('#pr-comments-templates');
+			let add_comment_form = tpl_container.find('#comment-code-line-form').parent().html();
 			let add_btn = $('#code-diff-add-comment');
+			let code_diff_table_trs = $('.code-diff table tr');
 			add_btn.mouseenter( function(e) {
 				add_btn.show();
 			}).mouseleave( function() {
@@ -183,11 +189,20 @@
 			});
 
 			add_btn.on('click', function() {
-
+				let selected_line_num = $(this).data('line-number');
+				let hovered_tr = code_diff_table_trs
+					.find('td[data-line-number='+selected_line_num+']')
+					.parent();
+				let col_span = hovered_tr.find('td').length
+				let comment_block = $(add_comment_form);
+				comment_block.data('line-number', selected_line_num);
+				comment_block.attr('id', 'comment-code-line-'+selected_line_num);
+				let wrap = '<tr><td colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
+				hovered_tr.after(wrap);
 			});
 
 			let add_btn_width = add_btn.width() * 2 * - 1;
-			$('.code-diff table tr')
+			code_diff_table_trs
 			.mouseenter( function(e) {
 				var line_number_Base = $(this).find('td[data-line-number]').first();
 				if(line_number_Base[0] == undefined) {

@@ -359,6 +359,7 @@ func ViewPullFiles(c *context.Context) {
 		c.Error(err, "get diff")
 		return
 	}
+
 	c.Data["Diff"] = diff
 	c.Data["DiffNotAvailable"] = diff.NumFiles() == 0
 
@@ -376,7 +377,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsSplitStyle"] = c.Query("style") == "split"
 	c.Data["IsImageFile"] = commit.IsImageFile
 	c.Data["IsImageFileByIndex"] = commit.IsImageFileByIndex
-	c.Data["IsEnabledCommentsPullRequest"] = true //todo move this settings to user db
+	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
 
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {
@@ -392,6 +393,9 @@ func ViewPullFiles(c *context.Context) {
 
 	c.Data["RequireHighlightJS"] = true
 	c.Success(PULL_FILES)
+}
+func IsEnabledCommentsPullRequest() bool {
+	return true
 }
 
 func MergePullRequest(c *context.Context) {
