@@ -378,6 +378,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsImageFile"] = commit.IsImageFile
 	c.Data["IsImageFileByIndex"] = commit.IsImageFileByIndex
 	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
+  c.Data["RequireSimpleMDE"] = true
 	c.Data["CodeCommentLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/code-comment"
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {

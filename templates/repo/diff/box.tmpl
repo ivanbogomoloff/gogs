@@ -177,7 +177,6 @@
 					<div class="field">
 						<div class="ui top attached tabular menu" data-write="write" data-preview="preview">
 							<a class="active item" data-tab="write">{{.i18n.Tr "repo.issues.create_comment"}}</a>
-							<a class="item" data-tab="preview" data-url="{{AppSubURL}}/api/v1/markdown" data-context="{{.RepoLink}}">{{.i18n.Tr "repo.release.preview"}}</a>
 						</div>
 						<div class="ui bottom attached active tab segment" data-tab="write">
 							<textarea id="content" class="edit_area" name="content" tabindex="4" data-id="issue-{{.RepoName}}" data-url="{{AppSubURL}}/api/v1/markdown" data-context="{{.Repo.RepoLink}}"></textarea>
@@ -188,7 +187,7 @@
 					</div>
 					{{.CSRFTokenHTML}}
 					<div class="text right">
-						<button class="ui red basic button" tabindex="5">
+						<button class="ui red basic button cancel-btn" tabindex="5">
 							{{.i18n.Tr "cancel"}}
 						</button>
 						<button class="ui green button" tabindex="5">
@@ -201,6 +200,69 @@
 		</div>
   	<script>
 		$(function() {
+				function InitSimpleMDE($editArea)
+				{
+				  if ($editArea.length > 0) {
+				    new SimpleMDE({
+				      autoDownloadFontAwesome: false,
+				      element: $editArea[0],
+				      forceSync: true,
+				      previewRender: function(plainText, preview) {
+				        // Async method
+				        setTimeout(function() {
+				          // FIXME: still send render request when return back to edit mode
+				          $.post(
+				            $editArea.data("url"),
+				            {
+				              _csrf: csrf,
+				              mode: "gfm",
+				              context: $editArea.data("context"),
+				              text: plainText
+				            },
+				            function(data) {
+				              preview.innerHTML = '<div class="markdown">' + data + "</div>";
+				              emojify.run($(".editor-preview")[0]);
+				            }
+				          );
+				        }, 0);
+
+				        return "Loading...";
+				      },
+				      renderingConfig: {
+				        singleLineBreaks: false
+				      },
+				      indentWithTabs: false,
+				      tabSize: 4,
+				      spellChecker: false,
+				      toolbar: [
+				        "bold",
+				        "italic",
+				        "strikethrough",
+				        "|",
+				        "heading-1",
+				        "heading-2",
+				        "heading-3",
+				        "heading-bigger",
+				        "heading-smaller",
+				        "|",
+				        "code",
+				        "quote",
+				        "|",
+				        "unordered-list",
+				        "ordered-list",
+				        "|",
+				        "link",
+				        "image",
+				        "table",
+				        "horizontal-rule",
+				        "|",
+				        "clean-block",
+				        "preview",
+				        "fullscreen"
+				      ]
+				    });
+				  }
+			}
 			let tpl_container = $('#pr-comments-templates');
 			let add_comment_form = tpl_container.find('#comment-code-line-form').parent().html();
 			let add_btn = $('#code-diff-add-comment');
@@ -221,6 +283,13 @@
 				let comment_block = $(add_comment_form);
 				let wrap = '<tr data-comment-line-number="'+selected_line_num+'" id="file-'+file_id+'-ccl-line-'+selected_line_num+'" class="comment-code-line"><td class="comment-code-line-wrapper" colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
 				hovered_tr.after(wrap);
+				let insertedCommentBlockTextArea = $('tr[data-comment-line-number="'+selected_line_num+'"] textarea');
+				let cancelButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .cancel-btn');
+				cancelButton.on('click', function() {
+					$('tr[data-comment-line-number="'+selected_line_num+'"]').remove();
+					return false;
+				});
+				InitSimpleMDE(insertedCommentBlockTextArea);
 			});
 
 			let add_btn_width = add_btn.width() * 2 * - 1;
