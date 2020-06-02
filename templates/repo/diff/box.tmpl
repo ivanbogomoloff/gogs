@@ -190,7 +190,7 @@
 						<button class="ui red basic button cancel-btn" tabindex="5">
 							{{.i18n.Tr "cancel"}}
 						</button>
-						<button class="ui green button" tabindex="5">
+						<button class="ui green button save-btn" tabindex="5">
 							{{.i18n.Tr "repo.issues.create_comment"}}
 						</button>
 					</div>
@@ -285,8 +285,58 @@
 				hovered_tr.after(wrap);
 				let insertedCommentBlockTextArea = $('tr[data-comment-line-number="'+selected_line_num+'"] textarea');
 				let cancelButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .cancel-btn');
+				let saveButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .save-btn');
 				cancelButton.on('click', function() {
 					$('tr[data-comment-line-number="'+selected_line_num+'"]').remove();
+					return false;
+				});
+				saveButton.on('click', function() {
+					let _ = $(this);
+					// Prevent duplicate click
+					if(_.hasClass('saving')) {
+						return false;
+					}
+					_.addClass('saving');
+					let form = $('tr[data-comment-line-number="'+selected_line_num+'"] form');
+					let formUrl = form.attr('action');
+					let csrf = form.find('input[name=_csrf]').val();
+					$.ajax({
+						url: formUrl,
+						method: 'POST',
+						data: {
+							_csrf: csrf,
+							line: selected_line_num,
+							commentedCode: '',
+							plainText: insertedCommentBlockTextArea.val(),
+							file_id: file_id
+						},
+					  statusCode: {
+							200: function(){
+									_.removeClass('saving');
+							},
+					    404: function() {
+								_.removeClass('saving');
+					      alert( "page not found" );
+					    },
+							500: function(){
+									_.removeClass('saving');
+								  alert('500 error');
+							},
+							502: function(){
+									_.removeClass('saving');
+								  alert('502 error');
+							},
+							503: function(){
+									_.removeClass('saving');
+								  alert('503 error');
+							},
+							504: function(){
+									_.removeClass('saving');
+								  alert('504 error');
+							}
+					  }
+					});
+
 					return false;
 				});
 				InitSimpleMDE(insertedCommentBlockTextArea);
