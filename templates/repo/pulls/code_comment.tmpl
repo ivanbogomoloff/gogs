@@ -12,7 +12,6 @@ POST DEBUG: <br>
 
 post_code_line: {{.post_code_line}} <br>
 post_file_id: {{.post_file_id}} <br>
-post_code_comment: {{.post_code_comment}} <br>
 post_comented_code: {{.post_comented_code}} <br>
 -->
 <tr data-commented-line-number="{{.post_code_line}}"
@@ -32,7 +31,7 @@ post_comented_code: {{.post_comented_code}} <br>
         </div>
         <div class="ui attached segment">
           <div class="render-content markdown has-emoji">
-            test
+            {{.Comment|Str2HTML}}
           </div>
         </div>
       </div>

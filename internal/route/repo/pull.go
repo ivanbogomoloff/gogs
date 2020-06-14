@@ -19,6 +19,7 @@ import (
 	"gogs.io/gogs/internal/db"
 	"gogs.io/gogs/internal/form"
 	"gogs.io/gogs/internal/gitutil"
+	"gogs.io/gogs/internal/markup"
 )
 
 const (
@@ -758,11 +759,15 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	// POST data
 	c.Data["post_code_line"] = f.Line
 	c.Data["post_file_id"] = f.FileID
-	c.Data["post_code_comment"] = f.Comment
+	c.Data["Comment"] = string(markup.Markdown(f.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
 	c.Data["post_comented_code"] = f.Code
 	c.Data["IsSplitStyle"] = f.SplitStyle
 	// Dynamic data
 	c.Data["CreatedStr"] = "2020-01-01 10:00:00"
+	//TODO
+	// - дата создания CreatedStr
+	// - допилить code_comment.tmpl там всё выводить корректно
+	// -
 
 	c.Success("repo/pulls/code_comment")
 }
