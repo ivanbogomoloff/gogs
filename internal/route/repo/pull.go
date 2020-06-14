@@ -747,3 +747,19 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 	log.Trace("Pull request created: %d/%d", repo.ID, pullIssue.ID)
 	c.Redirect(c.Repo.RepoLink + "/pulls/" + com.ToStr(pullIssue.Index))
 }
+
+func CodeComment(c *context.Context, f form.CodeComment) {
+	// REPO DATA and USER
+	c.Data["repo_username"] = c.Params(":username")
+	c.Data["repo_name"] = c.Params(":reponame")
+	c.Data["pull_id"] = c.Params(":index")
+	c.Data["current_user_id"] = c.UserID()
+	c.Data["current_user_name"] = c.User.Name
+	// POST data
+	c.Data["post_code_line"] = f.Line
+	c.Data["post_file_id"] = f.FileID
+	c.Data["post_code_comment"] = f.Comment
+	c.Data["post_comented_code"] = f.Code
+
+	c.Success("repo/pulls/code_comment")
+}

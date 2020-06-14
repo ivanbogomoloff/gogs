@@ -417,3 +417,14 @@ func (f *DeleteRepoFile) Validate(ctx *macaron.Context, errs binding.Errors) bin
 func (f *DeleteRepoFile) IsNewBrnach() bool {
 	return f.CommitChoice == "commit-to-new-branch"
 }
+
+type CodeComment struct {
+	Line int16 `binding:"Required"`
+	FileID string `binding:"Required;MaxSize(100)"`
+	Comment string `binding:"Required"`
+	Code string
+}
+
+func (f *CodeComment) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {
+	return validate(errs, ctx.Data, f, ctx.Locale)
+}
