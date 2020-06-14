@@ -308,11 +308,13 @@
 							line: selected_line_num,
 							code: '',
 							comment: insertedCommentBlockTextArea.val(),
-							file_id: file_id
+							file_id: file_id,
+							split_style: {{if .IsSplitStyle}}true{{else}}false{{end}}
 						},
 					  statusCode: {
-							200: function(){
+							200: function(r) {
 									_.removeClass('saving');
+									$('tr[data-comment-line-number="'+selected_line_num+'"]').replaceWith(r);
 							},
 					    404: function() {
 								_.removeClass('saving');

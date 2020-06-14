@@ -1,10 +1,10 @@
+<!--
 DEBUG:<br>
 
 repo_username: {{.repo_username}} <br>
 repo_name: {{.repo_name}} <br>
 pull_id: {{.pull_id}} <br>
 current_user_id: {{.current_user_id}} <br>
-current_user_name: {{.current_user_name}} <br>
 ------
 <br>
 POST DEBUG: <br>
@@ -14,3 +14,28 @@ post_code_line: {{.post_code_line}} <br>
 post_file_id: {{.post_file_id}} <br>
 post_code_comment: {{.post_code_comment}} <br>
 post_comented_code: {{.post_comented_code}} <br>
+-->
+<tr data-commented-line-number="{{.post_code_line}}"
+    data-commented-file-id="{{.post_file_id}}">
+  <td colspan="{{if .IsSplitStyle}}4{{else}}3{{end}}" style="padding: 0">
+    <div class="comment" id="mustuniq">
+      <div class="content">
+        <div class="ui top attached header">
+          <a class="avatar" {{if gt .Poster.ID 0}}href="{{.Poster.HomeLink}}"{{end}}>
+            <img style="max-width: 30px" src="{{.Poster.RelAvatarLink}}">
+          </a>
+          <span class="text grey"><a {{if gt .Poster.ID 0}}href="{{.Poster.HomeLink}}"{{end}}>{{.Poster.DisplayName}}</a> {{.i18n.Tr "repo.issues.commented_at" .CreatedStr .CreatedStr | Safe}}</span>
+          <div class="ui right actions">
+              <!--<div class="item tag">item_tag</div>-->
+            <!-- edit block here for admin or owners? -->
+          </div>
+        </div>
+        <div class="ui attached segment">
+          <div class="render-content markdown has-emoji">
+            test
+          </div>
+        </div>
+      </div>
+    </div>
+</td>
+</tr>

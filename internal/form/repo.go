@@ -423,6 +423,7 @@ type CodeComment struct {
 	FileID string `binding:"Required;MaxSize(100)"`
 	Comment string `binding:"Required"`
 	Code string
+	SplitStyle bool `binding:"Required"`
 }
 
 func (f *CodeComment) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {

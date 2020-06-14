@@ -754,12 +754,15 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	c.Data["repo_name"] = c.Params(":reponame")
 	c.Data["pull_id"] = c.Params(":index")
 	c.Data["current_user_id"] = c.UserID()
-	c.Data["current_user_name"] = c.User.Name
+	c.Data["Poster"] = c.User
 	// POST data
 	c.Data["post_code_line"] = f.Line
 	c.Data["post_file_id"] = f.FileID
 	c.Data["post_code_comment"] = f.Comment
 	c.Data["post_comented_code"] = f.Code
+	c.Data["IsSplitStyle"] = f.SplitStyle
+	// Dynamic data
+	c.Data["CreatedStr"] = "2020-01-01 10:00:00"
 
 	c.Success("repo/pulls/code_comment")
 }
