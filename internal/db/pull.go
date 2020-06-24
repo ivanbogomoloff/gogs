@@ -69,6 +69,20 @@ type PullRequest struct {
 	MergedUnix     int64
 }
 
+// Since: ability to comment code in pr
+type PullRequestCodeComment struct {
+	ID         string     `sql:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	Poster     *User      `xorm:"-" json:"-"`
+	Comment    string
+	CodeLine   int64
+	FileID 	   string	  `xorm:"VARCHAR(80)"`
+	PullID     int64
+	Repo 	   *Repository `xorm:"-" json:"-"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"update_at"`
+	DeletedAt *time.Time  `sql:"index" json:"deleted_at"`
+}
+
 func (pr *PullRequest) BeforeUpdate() {
 	pr.MergedUnix = pr.Merged.Unix()
 }
@@ -893,4 +907,11 @@ func TestPullRequests() {
 
 func InitTestPullRequests() {
 	go TestPullRequests()
+}
+
+func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (err error) {
+	sess := x.NewSession()
+	defer sess.Close()
+
+	return nil
 }

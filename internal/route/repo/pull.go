@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/unknwon/com"
 	log "unknwon.dev/clog/v2"
@@ -750,24 +751,32 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 }
 
 func CodeComment(c *context.Context, f form.CodeComment) {
-	// REPO DATA and USER
 	c.Data["repo_username"] = c.Params(":username")
 	c.Data["repo_name"] = c.Params(":reponame")
-	c.Data["pull_id"] = c.Params(":index")
+	c.Data["pull_id"] = c.ParamsInt64(":index")
+	// Check pull request
+	pullRequest, err := db.GetPullRequestByID(c.ParamsInt64(":index"))
+	if err != nil {
+		c.NotFoundOrError(err, "get pull request by index")
+	}
+
+	// TODO check access here ?
+
 	c.Data["current_user_id"] = c.UserID()
+	Poster := c.User
 	c.Data["Poster"] = c.User
-	// POST data
 	c.Data["post_code_line"] = f.Line
 	c.Data["post_file_id"] = f.FileID
-	c.Data["Comment"] = string(markup.Markdown(f.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+	CommentRaw := f.Comment
+	c.Data["Comment"] = string(markup.Markdown(CommentRaw, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
 	c.Data["post_comented_code"] = f.Code
 	c.Data["IsSplitStyle"] = f.SplitStyle
 	// Dynamic data
-	c.Data["CreatedStr"] = "2020-01-01 10:00:00"
-	//TODO
-	// - дата создания CreatedStr
-	// - допилить code_comment.tmpl там всё выводить корректно
-	// -
+	createdAt := time.Now()
+	c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
 
+	db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, Poster, CommentRaw, f.FileID, f.Line, createdAt)
+
+	log.Trace("Code comment for pull request %d created", c.Data["pull_id"])
 	c.Success("repo/pulls/code_comment")
 }
