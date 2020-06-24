@@ -6,6 +6,7 @@ package db
 
 import (
 	"fmt"
+	gouuid "github.com/satori/go.uuid"
 	"os"
 	"path/filepath"
 	"strings"
@@ -71,10 +72,11 @@ type PullRequest struct {
 
 // Since: ability to comment code in pr
 type PullRequestCodeComment struct {
-	ID         string     `sql:"type:uuid;primary_key;default:uuid_generate_v4()"`
+	ID         int64  `xorm:"pk autoincr"`
+	UUID       string `xorm:"uuid UNIQUE"`
 	Poster     *User      `xorm:"-" json:"-"`
 	Comment    string
-	CodeLine   int64
+	CodeLine   int16
 	FileID 	   string	  `xorm:"VARCHAR(80)"`
 	PullID     int64
 	Repo 	   *Repository `xorm:"-" json:"-"`
@@ -912,6 +914,25 @@ func InitTestPullRequests() {
 func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (err error) {
 	sess := x.NewSession()
 	defer sess.Close()
+	codeComment := &PullRequestCodeComment{
+		UUID:      gouuid.NewV4().String(),
+		Poster:    author,
+		Comment:   commentRaw,
+		CodeLine:  lineNum,
+		FileID:    fileID,
+		PullID:    pr.ID,
+		Repo:      repo,
+		CreatedAt: createdAt,
+		UpdatedAt: createdAt,
+		DeletedAt: nil,
+	}
+	if _, err = sess.Insert(codeComment); err != nil {
+		return fmt.Errorf("insert code comment to pull request: %v", err)
+	}
+
+	if err = sess.Commit(); err != nil {
+		return fmt.Errorf("Commit: %v", err)
+	}
 
 	return nil
 }
