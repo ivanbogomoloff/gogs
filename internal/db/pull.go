@@ -911,6 +911,24 @@ func InitTestPullRequests() {
 	go TestPullRequests()
 }
 
+func buildPullRequestCodeCommentsQuery(pr *PullRequest) *xorm.Session {
+	sess := x.NewSession()
+	sess.Where("pull_id = ?", pr.ID)
+
+	return sess
+}
+
+func PullRequestCodeComments(pr *PullRequest) ([]*PullRequestCodeComment, error) {
+	sess := buildPullRequestCodeCommentsQuery(pr)
+	countComments, _ := sess.Count(&PullRequest{})
+	comments := make([]*PullRequestCodeComment, countComments)
+	if err := sess.Find(&comments); err != nil {
+		return nil, fmt.Errorf("Find: %v", err)
+	}
+
+	return comments, nil
+}
+
 func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (err error) {
 	sess := x.NewSession()
 	defer sess.Close()
