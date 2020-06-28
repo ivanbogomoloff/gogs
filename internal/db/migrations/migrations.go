@@ -293,6 +293,12 @@ type TWebhook struct {
 
 func (t *TWebhook) TableName() string { return "webhook" }
 
+type TPullRequestCodeComment struct {
+	ID          int64 `xorm:"pk autoincr"`
+}
+
+func (t *TPullRequestCodeComment) TableName() string { return "pull_request_code_comment" }
+
 func convertDateToUnix(x *xorm.Engine) (err error) {
 	log.Info("This migration could take up to minutes, please be patient.")
 	type Bean struct {
