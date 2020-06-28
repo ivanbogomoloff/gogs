@@ -84,7 +84,6 @@ type PullRequestCodeComment struct {
 	UpdatedAt  time.Time  `json:"update_at"`
 	DeletedAt *time.Time  `sql:"index" json:"deleted_at"`
 }
-
 func (pr *PullRequest) BeforeUpdate() {
 	pr.MergedUnix = pr.Merged.Unix()
 }

@@ -382,14 +382,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
     c.Data["RequireSimpleMDE"] = true
 	c.Data["CodeCommentLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/code-comment"
-
-	var comments []*db.PullRequestCodeComment
-	comments, err = db.PullRequestCodeComments(pull)
-	if err != nil {
-		c.Error(err, "list comments")
-		return
-	}
-	c.Data["Comments"] = comments
+	c.Data["LoadCommentsLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/load-comments"
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {
 		c.Data["Username"] = pull.HeadUserName
@@ -756,6 +749,24 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 
 	log.Trace("Pull request created: %d/%d", repo.ID, pullIssue.ID)
 	c.Redirect(c.Repo.RepoLink + "/pulls/" + com.ToStr(pullIssue.Index))
+}
+
+func LoadCodeComments(c *context.Context) {
+	pullRequest, err := db.GetPullRequestByID(c.ParamsInt64(":index"))
+	if err != nil {
+		c.NotFoundOrError(err, "get pull request by index")
+	}
+
+	// TODO check access here ?
+
+	var comments []*db.PullRequestCodeComment
+	comments, err = db.PullRequestCodeComments(pullRequest)
+	if err != nil {
+		c.Error(err, "list comments")
+		return
+	}
+	
+	c.JSONSuccess(comments)
 }
 
 func CodeComment(c *context.Context, f form.CodeComment) {

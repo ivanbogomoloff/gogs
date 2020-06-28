@@ -200,8 +200,13 @@
 		</div>
   	<script>
 		$(function() {
-				function InitSimpleMDE($editArea)
-				{
+			// Load comments
+			$.get('{{.LoadCommentsLink}}', function(r) {
+
+			});
+
+			function InitSimpleMDE($editArea)
+			{
 				  if ($editArea.length > 0) {
 				    new SimpleMDE({
 				      autoDownloadFontAwesome: false,
