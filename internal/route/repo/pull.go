@@ -20,7 +20,6 @@ import (
 	"gogs.io/gogs/internal/db"
 	"gogs.io/gogs/internal/form"
 	"gogs.io/gogs/internal/gitutil"
-	"gogs.io/gogs/internal/markup"
 )
 
 const (
@@ -382,7 +381,6 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
     c.Data["RequireSimpleMDE"] = true
 	c.Data["CodeCommentLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/code-comment"
-	c.Data["LoadCommentsLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/load-comments"
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {
 		c.Data["Username"] = pull.HeadUserName
@@ -396,6 +394,15 @@ func ViewPullFiles(c *context.Context) {
 	}
 
 	c.Data["RequireHighlightJS"] = true
+
+	var comments []*db.PullRequestCodeComment
+	comments, err = db.PullRequestCodeComments(pull)
+	if err != nil {
+		c.Error(err, "list comments")
+		return
+	}
+	c.Data["CodeComments"] = comments
+
 	c.Success(PULL_FILES)
 }
 func IsEnabledCommentsPullRequest() bool {
@@ -751,51 +758,27 @@ func CompareAndPullRequestPost(c *context.Context, f form.NewIssue) {
 	c.Redirect(c.Repo.RepoLink + "/pulls/" + com.ToStr(pullIssue.Index))
 }
 
-func LoadCodeComments(c *context.Context) {
-	pullRequest, err := db.GetPullRequestByID(c.ParamsInt64(":index"))
-	if err != nil {
-		c.NotFoundOrError(err, "get pull request by index")
-	}
-
-	// TODO check access here ?
-
-	var comments []*db.PullRequestCodeComment
-	comments, err = db.PullRequestCodeComments(pullRequest)
-	if err != nil {
-		c.Error(err, "list comments")
-		return
-	}
-	
-	c.JSONSuccess(comments)
-}
-
 func CodeComment(c *context.Context, f form.CodeComment) {
-	c.Data["repo_username"] = c.Params(":username")
-	c.Data["repo_name"] = c.Params(":reponame")
-	c.Data["pull_id"] = c.ParamsInt64(":index")
 	// Check pull request
 	pullRequest, err := db.GetPullRequestByID(c.ParamsInt64(":index"))
 	if err != nil {
 		c.NotFoundOrError(err, "get pull request by index")
 	}
 
-	// TODO check access here ?
+	//c.Data["Comment"] = string(markup.Markdown(CommentRaw, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+	//c.Data["IsSplitStyle"] = f.SplitStyle
+	//c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
 
-	c.Data["current_user_id"] = c.UserID()
-	Poster := c.User
-	c.Data["Poster"] = c.User
-	c.Data["post_code_line"] = f.Line
-	c.Data["post_file_id"] = f.FileID
-	CommentRaw := f.Comment
-	c.Data["Comment"] = string(markup.Markdown(CommentRaw, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-	c.Data["post_comented_code"] = f.Code
-	c.Data["IsSplitStyle"] = f.SplitStyle
-	// Dynamic data
-	createdAt := time.Now()
-	c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
+	comment, err := db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, c.User, f.Comment, f.FileID, f.Line, time.Now())
+	if err != nil {
+		c.NotFoundOrError(err, "NewPullRequestCodeComment")
+	}
 
-	db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, Poster, CommentRaw, f.FileID, f.Line, createdAt)
+	c.Data["Comment"] = comment
 
-	log.Trace("Code comment for pull request %d created", c.Data["pull_id"])
-	c.Success("repo/pulls/code_comment")
+	//c.Data["CommentMD"]   = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+	//c.Data["IsSplitStyle"] = f.SplitStyle
+
+	log.Trace("Code comment for pull request %d created", pullRequest.ID)
+	c.Success("repo/pulls/code_comment_wrap")
 }

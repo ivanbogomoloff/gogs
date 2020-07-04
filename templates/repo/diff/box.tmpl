@@ -98,8 +98,8 @@
 							{{end}}
 							<table>
 								<tbody>
+									{{$highlightClass := $file.HighlightClass}}
 									{{if $.IsSplitStyle}}
-										{{$highlightClass := $file.HighlightClass}}
 										{{range $j, $section := $file.Sections}}
 											{{range $k, $line := $section.Lines}}
 												<tr class="{{DiffLineTypeToStr .Type}}-code nl-{{$k}} ol-{{$k}}">
@@ -124,7 +124,35 @@
 											{{end}}
 										{{end}}
 									{{else}}
-										{{template "repo/diff/section_unified" . }}
+
+										{{/*I commented this because know valid way "how to pass comments array to section_unified template" */}}
+										{{/*and becase this template used in templates/repo/editor/diff_preview.tmpl - it's pretty hard for me at moment*/}}
+										{{/*if you know how make it cross-used with pull request comments and editor, please help.*/}}
+										{{/*template "repo/diff/section_unified" . */}}
+
+										{{range $j, $section := $file.Sections}}
+											{{range $k, $line := $section.Lines}}
+												<tr class="{{DiffLineTypeToStr .Type}}-code nl-{{$k}} ol-{{$k}}">
+													{{if eq .Type 4}}
+														<td colspan="2" class="lines-num">
+															{{/* {{if gt $j 0}}<span class="fold octicon octicon-fold"></span>{{end}} */}}
+														</td>
+													{{else}}
+														<td class="lines-num lines-num-old" {{if $line.LeftLine}}  data-file-id="{{$file.Index}}" id="diff-{{$file.Index}}L{{$line.LeftLine}}" data-line-number="{{$line.LeftLine}}"{{end}}></td>
+														<td class="lines-num lines-num-new" {{if $line.RightLine}} data-file-id="{{$file.Index}}" id="diff-{{$file.Index}}R{{$line.RightLine}}" data-line-number="{{$line.RightLine}}"{{end}}></td>
+													{{end}}
+													<td class="lines-code">
+														<pre><code class="{{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.ComputedInlineDiffFor $line}}</code></pre>
+													</td>
+												</tr>
+												{{range $ci, $comment := $.CodeComments}}
+													{{if $comment.EqualToFileIndex $file.Index $line.LeftLine $line.RightLine }}
+														{{template "repo/pulls/code_comment" $comment}}
+													{{end}}
+												{{end}}
+											{{end}}
+										{{end}}
+
 									{{end}}
 								</tbody>
 							</table>
@@ -200,11 +228,6 @@
 		</div>
   	<script>
 		$(function() {
-			// Load comments
-			$.get('{{.LoadCommentsLink}}', function(r) {
-
-			});
-
 			function InitSimpleMDE($editArea)
 			{
 				  if ($editArea.length > 0) {
@@ -361,7 +384,7 @@
 					top: Math.abs(add_btn.parent()[0].getBoundingClientRect().y - line_number_Base[0].getBoundingClientRect().y) + 'px'
 				});
 				add_btn.data('line-number', line_number_Base.data('line-number'));
-				add_btn.data('file-id', line_number_Base.prop('id'));
+				add_btn.data('file-id', line_number_Base.attr('data-file-id'));
 				add_btn.show();
 			} )
 			.mouseleave( function() {

@@ -598,7 +598,6 @@ func runWeb(c *cli.Context) error {
 				m.Get("/files", context.RepoRef(), repo.ViewPullFiles)
 				m.Post("/merge", reqRepoWriter, repo.MergePullRequest)
 				m.Post("/code-comment", bindIgnErr(form.CodeComment{}), repo.CodeComment)
-				m.Get("/load-comments", repo.LoadCodeComments)
 			}, repo.MustAllowPulls)
 
 			m.Group("", func() {

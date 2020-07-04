@@ -1,13 +1,14 @@
-<tr data-commented-line-number="{{.post_code_line}}"
-    data-commented-file-id="{{.post_file_id}}">
-  <td colspan="{{if .IsSplitStyle}}4{{else}}3{{end}}" style="padding: 0">
-    <div class="comment" id="mustuniq">
+{{$comment := .}}
+<tr data-commented-line-number="{{$comment.CodeLineAsString}}"
+    data-commented-file-id="{{$comment.FileID}}">
+  <td colspan="{{/*if .IsSplitStyle}}4{{else}}3{{end */}}" style="padding: 0">
+    <div class="comment" id="comm-{{$comment.UUID}}">
       <div class="content">
         <div class="ui top attached header">
-          <a class="avatar" {{if gt .Poster.ID 0}}href="{{.Poster.HomeLink}}"{{end}}>
-            <img style="max-width: 30px" src="{{.Poster.RelAvatarLink}}">
+          <a class="avatar" {{if gt $comment.Poster.ID 0}}href="{{$comment.Poster.HomeLink}}"{{end}}>
+            <img style="max-width: 30px" src="{{$comment.Poster.RelAvatarLink}}">
           </a>
-          <span class="text grey"><a {{if gt .Poster.ID 0}}href="{{.Poster.HomeLink}}"{{end}}>{{.Poster.DisplayName}}</a> {{.i18n.Tr "repo.issues.commented_at" .CreatedStr .CreatedStr | Safe}}</span>
+          <span class="text grey"><a {{if gt $comment.Poster.ID 0}}href="{{$comment.Poster.HomeLink}}"{{end}}>{{$comment.Poster.DisplayName}}</a></span>
           <div class="ui right actions">
               <!--<div class="item tag">item_tag</div>-->
             <!-- edit block here for admin or owners? -->
@@ -15,7 +16,7 @@
         </div>
         <div class="ui attached segment">
           <div class="render-content markdown has-emoji">
-            {{.Comment|Str2HTML}}
+            {{$comment.Comment|Str2HTML}}
           </div>
         </div>
       </div>

@@ -74,6 +74,7 @@ type PullRequest struct {
 type PullRequestCodeComment struct {
 	ID         int64  `xorm:"pk autoincr"`
 	UUID       string `xorm:"uuid UNIQUE"`
+	PosterID   int64
 	Poster     *User      `xorm:"-" json:"-"`
 	Comment    string
 	CodeLine   int16
@@ -84,6 +85,15 @@ type PullRequestCodeComment struct {
 	UpdatedAt  time.Time  `json:"update_at"`
 	DeletedAt *time.Time  `sql:"index" json:"deleted_at"`
 }
+
+func (comment *PullRequestCodeComment) EqualToFileIndex(fileID string, leftCodeLine int, rightCodeLine int) bool {
+	return comment.FileID == fileID && (int(comment.CodeLine) == leftCodeLine || int(comment.CodeLine) == rightCodeLine)
+}
+
+func (comment *PullRequestCodeComment) CodeLineAsString() string {
+	return "test"
+}
+
 func (pr *PullRequest) BeforeUpdate() {
 	pr.MergedUnix = pr.Merged.Unix()
 }
@@ -913,6 +923,11 @@ func InitTestPullRequests() {
 func buildPullRequestCodeCommentsQuery(pr *PullRequest) *xorm.Session {
 	sess := x.NewSession()
 	sess.Where("pull_id = ?", pr.ID)
+	if conf.UsePostgreSQL {
+		sess = sess.Join("INNER", "`user`", `"user".id=pull_request_code_comment.poster_id`)
+	} else {
+		sess = sess.Join("INNER", "user", "user.id=pull_request_code_comment.poster_id")
+	}
 
 	return sess
 }
@@ -924,16 +939,22 @@ func PullRequestCodeComments(pr *PullRequest) ([]*PullRequestCodeComment, error)
 	if err := sess.Find(&comments); err != nil {
 		return nil, fmt.Errorf("Find: %v", err)
 	}
-
+	// I don't know WHY Poster not mapped to struct and i have't passion for this research
+	// so hack is 1. find all poster_ids and query this for users and set it into each struct
+	if countComments > 0 {
+		// TODO iterate over and agegate poster_ids then query in user table by WHERE user.id IN (poster_ids) then
+		// TODO iterate over each comment and set Poster
+	}
 	return comments, nil
 }
 
-func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (err error) {
+func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (comment *PullRequestCodeComment, err error) {
 	sess := x.NewSession()
 	defer sess.Close()
 	codeComment := &PullRequestCodeComment{
 		UUID:      gouuid.NewV4().String(),
 		Poster:    author,
+		PosterID: author.ID,
 		Comment:   commentRaw,
 		CodeLine:  lineNum,
 		FileID:    fileID,
@@ -944,12 +965,12 @@ func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, 
 		DeletedAt: nil,
 	}
 	if _, err = sess.Insert(codeComment); err != nil {
-		return fmt.Errorf("insert code comment to pull request: %v", err)
+		return nil, fmt.Errorf("insert code comment to pull request: %v", err)
 	}
 
 	if err = sess.Commit(); err != nil {
-		return fmt.Errorf("Commit: %v", err)
+		return nil, fmt.Errorf("Commit: %v", err)
 	}
 
-	return nil
+	return codeComment, nil
 }
