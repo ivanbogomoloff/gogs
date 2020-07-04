@@ -934,16 +934,10 @@ func buildPullRequestCodeCommentsQuery(pr *PullRequest) *xorm.Session {
 
 func PullRequestCodeComments(pr *PullRequest) ([]*PullRequestCodeComment, error) {
 	sess := buildPullRequestCodeCommentsQuery(pr)
-	countComments, _ := sess.Count(&PullRequest{})
+	countComments, _ := sess.Count(&PullRequestCodeComment{})
 	comments := make([]*PullRequestCodeComment, countComments)
 	if err := sess.Find(&comments); err != nil {
 		return nil, fmt.Errorf("Find: %v", err)
-	}
-	// I don't know WHY Poster not mapped to struct and i have't passion for this research
-	// so hack is 1. find all poster_ids and query this for users and set it into each struct
-	if countComments > 0 {
-		// TODO iterate over and agegate poster_ids then query in user table by WHERE user.id IN (poster_ids) then
-		// TODO iterate over each comment and set Poster
 	}
 	return comments, nil
 }
