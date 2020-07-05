@@ -375,7 +375,8 @@ func ViewPullFiles(c *context.Context) {
 		return
 	}
 
-	c.Data["IsSplitStyle"] = c.Query("style") == "split"
+	isSplitStyle := c.Query("style") == "split"
+	c.Data["IsSplitStyle"] = isSplitStyle
 	c.Data["IsImageFile"] = commit.IsImageFile
 	c.Data["IsImageFileByIndex"] = commit.IsImageFileByIndex
 	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
@@ -396,7 +397,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["RequireHighlightJS"] = true
 
 	var comments []*db.PullRequestCodeComment
-	comments, err = db.PullRequestCodeComments(pull)
+	comments, err = db.PullRequestCodeComments(pull, isSplitStyle)
 	if err != nil {
 		c.Error(err, "list comments")
 		return

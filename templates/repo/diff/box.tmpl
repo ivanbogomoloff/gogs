@@ -146,7 +146,7 @@
 													</td>
 												</tr>
 												{{range $ci, $comment := $.CodeComments}}
-													{{if $comment.EqualToFileIndex $file.Index $line.LeftLine $line.RightLine }}
+													{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
 														{{template "repo/pulls/code_comment" $comment}}
 													{{end}}
 												{{end}}

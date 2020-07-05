@@ -77,6 +77,7 @@ type PullRequestCodeComment struct {
 	PosterID   int64
 	Poster     *User      `xorm:"-" json:"-"`
 	Comment    string
+	IsSplitStyle    bool  /*<- this property only for UI!*/
 	CodeLine   int16
 	FileID 	   string	  `xorm:"VARCHAR(80)"`
 	PullID     int64
@@ -86,8 +87,18 @@ type PullRequestCodeComment struct {
 	DeletedAt *time.Time  `sql:"index" json:"deleted_at"`
 }
 
-func (comment *PullRequestCodeComment) EqualToFileIndex(fileID string, leftCodeLine int, rightCodeLine int) bool {
-	return comment.FileID == fileID && (int(comment.CodeLine) == leftCodeLine || int(comment.CodeLine) == rightCodeLine)
+func (comment *PullRequestCodeComment) EqualToFileIndexAndLine(fileID string, ll int, rl int) bool {
+	if comment.FileID == fileID  {
+		lineStr := fmt.Sprintf("%d", comment.CodeLine)
+		if fmt.Sprintf("%d", rl) == lineStr  {
+			return true
+		} else if fmt.Sprintf("%d", ll) == lineStr {
+			return true
+		}
+		return false
+	}
+
+	return false
 }
 
 func (comment *PullRequestCodeComment) CodeLineAsString() string {
@@ -923,21 +934,20 @@ func InitTestPullRequests() {
 func buildPullRequestCodeCommentsQuery(pr *PullRequest) *xorm.Session {
 	sess := x.NewSession()
 	sess.Where("pull_id = ?", pr.ID)
-	if conf.UsePostgreSQL {
-		sess = sess.Join("INNER", "`user`", `"user".id=pull_request_code_comment.poster_id`)
-	} else {
-		sess = sess.Join("INNER", "user", "user.id=pull_request_code_comment.poster_id")
-	}
 
 	return sess
 }
 
-func PullRequestCodeComments(pr *PullRequest) ([]*PullRequestCodeComment, error) {
+func PullRequestCodeComments(pr *PullRequest, isSplitStyle bool) ([]*PullRequestCodeComment, error) {
 	sess := buildPullRequestCodeCommentsQuery(pr)
-	countComments, _ := sess.Count(&PullRequestCodeComment{})
-	comments := make([]*PullRequestCodeComment, countComments)
+	comments := make([]*PullRequestCodeComment, 0)
 	if err := sess.Find(&comments); err != nil {
 		return nil, fmt.Errorf("Find: %v", err)
+	}
+	// TODO fix this by agregate USER_IDS and query them WHERE IN condition once
+	for i := 0; i < len(comments); i++ {
+		comments[i].Poster, _ = GetUserByKeyID(comments[i].PosterID)
+		comments[i].IsSplitStyle = isSplitStyle
 	}
 	return comments, nil
 }
