@@ -1,5 +1,6 @@
 {{$comment := .}}
-    <div class="comment" id="comm-{{$comment.UUID}}"
+    <div
+         class="comment" id="comm-{{$comment.UUID}}"
         data-commented-line-number="{{$comment.CodeLineAsString}}"
         data-commented-file-id="{{$comment.FileID}}">
       <div class="content">

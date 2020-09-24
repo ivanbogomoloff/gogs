@@ -1,6 +1,5 @@
 {{$comment := .}}
-<tr data-commented-line-number="{{$comment.CodeLineAsString}}"
-    data-commented-file-id="{{$comment.FileID}}">
+<tr >
     <td colspan="{{if .IsSplitStyle}}4{{else}}3{{end}}" style="padding: 0">
 {{template "repo/pulls/code_comment" $comment}}
 </td>

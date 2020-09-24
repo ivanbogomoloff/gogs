@@ -93,9 +93,6 @@
 						</div>
 					{{else}}
 						<div class="file-body file-code code-view code-diff">
-							{{if $.IsEnabledCommentsPullRequest}}
-							<button class="ui compact icon mini button" id="code-diff-add-comment" style="position: absolute; display: none"><i class="add icon"></i></button>
-							{{end}}
 							<table>
 								<tbody>
 									{{$highlightClass := $file.HighlightClass}}
@@ -112,11 +109,27 @@
 														<td class="lines-num lines-num-old" {{if $line.LeftLine}} id="diff-{{Sha1 $file.Index}}L{{$line.LeftLine}}" data-line-number="{{$line.LeftLine}}"{{end}}>
 														</td>
 														<td class="lines-code halfwidth">
+															{{if $.IsEnabledCommentsPullRequest}}
+															<button
+															{{if $line.LeftLine}} data-file-id="{{$file.Index}}" data-line-side="1" data-line-number="{{$line.LeftLine}}"{{end}}
+															class="add-comment-btn ui compact icon mini button"
+															id="add-comment-btn-{{Sha1 $file.Index}}R{{$line.RightLine}}"
+															style="display: none"
+															><i class="add icon"></i></button>
+															{{end}}
 															<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{if $line.LeftLine}}{{$section.ComputedInlineDiffFor $line}}{{end}}</code></pre>
 														</td>
 														<td class="lines-num lines-num-new" {{if $line.RightLine}} id="diff-{{Sha1 $file.Index}}R{{$line.RightLine}}" data-line-number="{{$line.RightLine}}"{{end}}>
 														</td>
 														<td class="lines-code halfwidth">
+															{{if $.IsEnabledCommentsPullRequest}}
+															<button
+																{{if $line.RightLine}}data-file-id="{{$file.Index}}" data-line-side="2" data-line-number="{{$line.RightLine}}"{{end}}
+																class="add-comment-btn ui compact icon mini button"
+																id="add-comment-btn-{{Sha1 $file.Index}}R{{$line.RightLine}}"
+																style="display: none"
+																><i class="add icon"></i></button>
+															{{end}}
 															<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{if $line.RightLine}}{{$section.ComputedInlineDiffFor $line}}{{end}}</code></pre>
 															{{range $ci, $comment := $.CodeComments}}
 																{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
@@ -147,6 +160,16 @@
 														<td class="lines-num lines-num-new" {{if $line.RightLine}} data-file-id="{{$file.Index}}" id="diff-{{$file.Index}}R{{$line.RightLine}}" data-line-number="{{$line.RightLine}}"{{end}}></td>
 													{{end}}
 													<td class="lines-code">
+														{{if $.IsEnabledCommentsPullRequest}}
+														<button
+														data-file-id="{{if $line.RightLine}}{{$file.Index}}{{else if $line.LeftLine}}{{$file.Index}}{{end}}"
+														data-line-side="{{if $line.RightLine}}2{{else if $line.LeftLine}}{{$line.LeftLine}}{{end}}"
+														data-line-number="{{if $line.RightLine}}{{$line.RightLine}}{{end}}"
+														class="add-comment-btn ui compact icon mini button"
+														style="display: none"
+														id="add-comment-btn-{{Sha1 $file.Index}}R{{$line.RightLine}}">
+														<i class="add icon"></i></button>
+														{{end}}
 														<pre><code class="{{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.ComputedInlineDiffFor $line}}</code></pre>
 													</td>
 												</tr>
@@ -202,9 +225,20 @@
 			.comment-code-line-wrapper {
 				padding: 10px !important;
 			}
+			button.add-comment-btn {
+				height: 20px;
+				width: 20px;
+				padding: 2px !important;
+				z-index:999;
+				position: relative;
+				float: left;
+				margin-left: -15px !important;
+				display: none;
+			}
 		</style>
 	  <div id="pr-comments-templates" style="display:none">
 			<!-- Comment input form -->
+			{{/* TODO on split style form must correct render */}}
 			<div id="comment-code-line-form" style="display: none">
 				<form class="ui form" id="comment-form" action="{{.CodeCommentLink}}" method="post">
 					<div class="field">
@@ -298,21 +332,26 @@
 			}
 			let tpl_container = $('#pr-comments-templates');
 			let add_comment_form = tpl_container.find('#comment-code-line-form').parent().html();
-			let add_btn = $('#code-diff-add-comment');
-			let code_diff_table_trs = $('.code-diff table tr');
-			add_btn.mouseenter( function(e) {
-				add_btn.show();
+			let add_btn = $('.add-comment-btn');
+
+			let code_diff_table_trs = $('.lines-code');
+			code_diff_table_trs.mouseenter( function(e) {
+				let _addBtn = $(this).find('.add-comment-btn');
+				if(_addBtn.length > 0) {
+						_addBtn.show();
+				}
 			}).mouseleave( function() {
-				add_btn.hide();
+				let _addBtn = $(this).find('.add-comment-btn');
+				if(_addBtn.length > 0) {
+						_addBtn.hide();
+				}
 			});
 
 			add_btn.on('click', function() {
 				let selected_line_num = $(this).data('line-number');
 				let file_id = $(this).data('file-id');
-				let hovered_tr = code_diff_table_trs
-					.find('td[data-line-number='+selected_line_num+']')
-					.parent();
-				let col_span = hovered_tr.find('td').length
+				let hovered_tr = $(this).parent().parent();
+				let col_span = hovered_tr.find('td').length;
 				let comment_block = $(add_comment_form);
 				let wrap = '<tr data-comment-line-number="'+selected_line_num+'" id="file-'+file_id+'-ccl-line-'+selected_line_num+'" class="comment-code-line"><td class="comment-code-line-wrapper" colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
 				hovered_tr.after(wrap);
@@ -375,25 +414,6 @@
 					return false;
 				});
 				InitSimpleMDE(insertedCommentBlockTextArea);
-			});
-
-			let add_btn_width = add_btn.width() * 2 * - 1;
-			code_diff_table_trs
-			.mouseenter( function(e) {
-				var line_number_Base = $(this).find('td[data-line-number]').first();
-				if(line_number_Base[0] == undefined) {
-					return;
-				}
-				add_btn.css({
-					left: add_btn_width+'px',
-					top: Math.abs(add_btn.parent()[0].getBoundingClientRect().y - line_number_Base[0].getBoundingClientRect().y) + 'px'
-				});
-				add_btn.data('line-number', line_number_Base.data('line-number'));
-				add_btn.data('file-id', line_number_Base.attr('data-file-id'));
-				add_btn.show();
-			} )
-			.mouseleave( function() {
-				add_btn.hide();
 			});
 		});
 		</script>
