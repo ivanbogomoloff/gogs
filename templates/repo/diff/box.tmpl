@@ -348,6 +348,11 @@
 			});
 
 			add_btn.on('click', function() {
+				let _addBtn = $(this);
+				if($(this).hasClass('has-comment-form')) {
+					return false;
+				}
+				$(this).addClass('has-comment-form');
 				let selected_line_num = $(this).data('line-number');
 				let file_id = $(this).data('file-id');
 				let hovered_tr = $(this).parent().parent();
@@ -360,6 +365,7 @@
 				let saveButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .save-btn');
 				cancelButton.on('click', function() {
 					$('tr[data-comment-line-number="'+selected_line_num+'"]').remove();
+					_addBtn.removeClass('has-comment-form');
 					return false;
 				});
 				saveButton.on('click', function() {
@@ -386,26 +392,32 @@
 					  statusCode: {
 							200: function(r) {
 									_.removeClass('saving');
+									_addBtn.removeClass('has-comment-form');
 									$('tr[data-comment-line-number="'+selected_line_num+'"]').replaceWith(r);
 							},
 					    404: function() {
 								_.removeClass('saving');
+								_addBtn.removeClass('has-comment-form');
 					      alert( "page not found" );
 					    },
 							500: function(){
 									_.removeClass('saving');
+									_addBtn.removeClass('has-comment-form');
 								  alert('500 error');
 							},
 							502: function(){
 									_.removeClass('saving');
+									_addBtn.removeClass('has-comment-form');
 								  alert('502 error');
 							},
 							503: function(){
 									_.removeClass('saving');
+									_addBtn.removeClass('has-comment-form');
 								  alert('503 error');
 							},
 							504: function(){
 									_.removeClass('saving');
+									_addBtn.removeClass('has-comment-form');
 								  alert('504 error');
 							}
 					  }
