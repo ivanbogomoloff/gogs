@@ -1,8 +1,7 @@
 {{$comment := .}}
-<tr data-commented-line-number="{{$comment.CodeLineAsString}}"
-    data-commented-file-id="{{$comment.FileID}}">
-  <td colspan="{{if .IsSplitStyle}}4{{else}}3{{end}}" style="padding: 0">
-    <div class="comment" id="comm-{{$comment.UUID}}">
+    <div class="comment" id="comm-{{$comment.UUID}}"
+        data-commented-line-number="{{$comment.CodeLineAsString}}"
+        data-commented-file-id="{{$comment.FileID}}">
       <div class="content">
         <div class="ui top attached header">
           <a class="avatar" {{if gt $comment.PosterID 0}}href="{{$comment.Poster.HomeLink}}"{{end}}>
@@ -21,5 +20,3 @@
         </div>
       </div>
     </div>
-</td>
-</tr>

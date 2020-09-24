@@ -118,6 +118,11 @@
 														</td>
 														<td class="lines-code halfwidth">
 															<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{if $line.RightLine}}{{$section.ComputedInlineDiffFor $line}}{{end}}</code></pre>
+															{{range $ci, $comment := $.CodeComments}}
+																{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
+																	{{template "repo/pulls/code_comment" $comment}}
+																{{end}}
+															{{end}}
 														</td>
 													{{end}}
 												</tr>
@@ -125,7 +130,7 @@
 										{{end}}
 									{{else}}
 
-										{{/*I commented this because know valid way "how to pass comments array to section_unified template" */}}
+										{{/*I commented this because did not know valid way "how to pass comments array to section_unified template" */}}
 										{{/*and becase this template used in templates/repo/editor/diff_preview.tmpl - it's pretty hard for me at moment*/}}
 										{{/*if you know how make it cross-used with pull request comments and editor, please help.*/}}
 										{{/*template "repo/diff/section_unified" . */}}
@@ -147,7 +152,7 @@
 												</tr>
 												{{range $ci, $comment := $.CodeComments}}
 													{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
-														{{template "repo/pulls/code_comment" $comment}}
+														{{template "repo/pulls/code_comment_tr_wrap" $comment}}
 													{{end}}
 												{{end}}
 											{{end}}
