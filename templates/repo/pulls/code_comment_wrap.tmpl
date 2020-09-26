@@ -1,1 +1,5 @@
+{{if .IsSplitStyle}}
+{{template "repo/pulls/code_comment_tr_split_wrap" .Comment}}
+{{else}}
 {{template "repo/pulls/code_comment_tr_wrap" .Comment}}
+{{end}}

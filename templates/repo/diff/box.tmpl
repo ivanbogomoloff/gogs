@@ -391,14 +391,13 @@
 							comment: insertedCommentBlockTextArea.val(),
 							file_id: file_id,
 							side_id: side_id,
-							split_style: {{if .IsSplitStyle}}true{{else}}false{{end}}
+							split: {{if .IsSplitStyle}}true{{else}}false{{end}}
 						},
 					  statusCode: {
 							200: function(r) {
 									_.removeClass('saving');
 									_addBtn.removeClass('has-comment-form');
-									$('tr[data-comment-line-number="'+selected_line_num+'"]').remove();
-									_addBtn.parent().append(r);
+									$('tr[data-comment-line-number="'+selected_line_num+'"]').replaceWith(r);
 							},
 					    404: function() {
 								_.removeClass('saving');

@@ -423,7 +423,7 @@ type CodeComment struct {
 	FileID string `binding:"Required;MaxSize(100)"`
 	Comment string `binding:"Required"`
 	Code string
-	SplitStyle bool `binding:"Required"`
+	Split bool `binding:"Required"`
 	SideID int16 `binding:"Required"`
 }
 

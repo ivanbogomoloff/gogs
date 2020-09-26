@@ -1,9 +1,9 @@
 {{$comment := .}}
 <tr>
   <td></td>
-  <td style="padding: 0">{{if lt $comment.SideID 1}}{{template "repo/pulls/code_comment" $comment}}{{end}}</td>
+  <td style="padding: 0">{{if eq $comment.SideID 1}}{{template "repo/pulls/code_comment" $comment}}{{end}}</td>
   <td></td>
   <td style="padding: 0">
-    {{if gt $comment.SideID 1}}{{template "repo/pulls/code_comment" $comment}}{{end}}
+    {{if eq $comment.SideID 2}}{{template "repo/pulls/code_comment" $comment}}{{end}}
   </td>
 </tr>

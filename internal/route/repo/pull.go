@@ -767,7 +767,7 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	}
 
 	//c.Data["Comment"] = string(markup.Markdown(CommentRaw, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-	//c.Data["IsSplitStyle"] = f.SplitStyle
+	c.Data["IsSplitStyle"] = f.Split
 	//c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
 
 	comment, err := db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, c.User, f.Comment, f.FileID, f.Line, f.SideID, time.Now())
@@ -780,9 +780,7 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	//c.Data["CommentMD"]   = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
 	//c.Data["IsSplitStyle"] = f.SplitStyle
 
-	log.Trace("Code comment for pull request %d created", pullRequest.ID)
-	if f.SplitStyle {
-			c.Success("repo/pulls/code_comment_tr_split_wrap")
-	}
+	//log.Trace("Code comment for pull request %d created", pullRequest.ID)
+	//log.Trace("%d", comment.SideID)
 	c.Success("repo/pulls/code_comment_wrap")
 }
