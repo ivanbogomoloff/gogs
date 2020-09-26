@@ -424,6 +424,7 @@ type CodeComment struct {
 	Comment string `binding:"Required"`
 	Code string
 	SplitStyle bool `binding:"Required"`
+	SideID int16 `binding:"Required"`
 }
 
 func (f *CodeComment) Validate(ctx *macaron.Context, errs binding.Errors) binding.Errors {

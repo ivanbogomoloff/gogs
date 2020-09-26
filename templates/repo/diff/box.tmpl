@@ -131,14 +131,16 @@
 																><i class="add icon"></i></button>
 															{{end}}
 															<pre><code class="wrap {{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{if $line.RightLine}}{{$section.ComputedInlineDiffFor $line}}{{end}}</code></pre>
-															{{range $ci, $comment := $.CodeComments}}
-																{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
-																	{{template "repo/pulls/code_comment" $comment}}
-																{{end}}
-															{{end}}
 														</td>
 													{{end}}
 												</tr>
+
+												{{range $ci, $comment := $.CodeComments}}
+													{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
+														{{template "repo/pulls/code_comment_tr_split_wrap" $comment}}
+													{{end}}
+												{{end}}
+
 											{{end}}
 										{{end}}
 									{{else}}
@@ -355,6 +357,7 @@
 				$(this).addClass('has-comment-form');
 				let selected_line_num = $(this).data('line-number');
 				let file_id = $(this).data('file-id');
+				let side_id = $(this).data('line-side');
 				let hovered_tr = $(this).parent().parent();
 				let col_span = hovered_tr.find('td').length;
 				let comment_block = $(add_comment_form);
@@ -387,13 +390,15 @@
 							code: '',
 							comment: insertedCommentBlockTextArea.val(),
 							file_id: file_id,
+							side_id: side_id,
 							split_style: {{if .IsSplitStyle}}true{{else}}false{{end}}
 						},
 					  statusCode: {
 							200: function(r) {
 									_.removeClass('saving');
 									_addBtn.removeClass('has-comment-form');
-									$('tr[data-comment-line-number="'+selected_line_num+'"]').replaceWith(r);
+									$('tr[data-comment-line-number="'+selected_line_num+'"]').remove();
+									_addBtn.parent().append(r);
 							},
 					    404: function() {
 								_.removeClass('saving');

@@ -770,7 +770,7 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	//c.Data["IsSplitStyle"] = f.SplitStyle
 	//c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
 
-	comment, err := db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, c.User, f.Comment, f.FileID, f.Line, time.Now())
+	comment, err := db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, c.User, f.Comment, f.FileID, f.Line, f.SideID, time.Now())
 	if err != nil {
 		c.NotFoundOrError(err, "NewPullRequestCodeComment")
 	}
@@ -782,7 +782,7 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 
 	log.Trace("Code comment for pull request %d created", pullRequest.ID)
 	if f.SplitStyle {
-			c.Success("repo/pulls/code_comment_wrap")
+			c.Success("repo/pulls/code_comment_tr_split_wrap")
 	}
 	c.Success("repo/pulls/code_comment_wrap")
 }

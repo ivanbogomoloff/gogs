@@ -77,8 +77,9 @@ type PullRequestCodeComment struct {
 	PosterID   int64
 	Poster     *User      `xorm:"-" json:"-"`
 	Comment    string
-	IsSplitStyle    bool  /*<- this property only for UI!*/
+	IsSplitStyle    bool  /*<- this property only for UI! - means from what style comment was inserted */
 	CodeLine   int16
+	SideID     int16
 	FileID 	   string	  `xorm:"VARCHAR(80)"`
 	PullID     int64
 	Repo 	   *Repository `xorm:"-" json:"-"`
@@ -952,7 +953,7 @@ func PullRequestCodeComments(pr *PullRequest, isSplitStyle bool) ([]*PullRequest
 	return comments, nil
 }
 
-func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, createdAt time.Time) (comment *PullRequestCodeComment, err error) {
+func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, commentRaw string, fileID string, lineNum int16, sideID int16 , createdAt time.Time) (comment *PullRequestCodeComment, err error) {
 	sess := x.NewSession()
 	defer sess.Close()
 	codeComment := &PullRequestCodeComment{
@@ -962,6 +963,7 @@ func NewPullRequestCodeComment(repo *Repository, pr *PullRequest, author *User, 
 		Comment:   commentRaw,
 		CodeLine:  lineNum,
 		FileID:    fileID,
+		SideID:    sideID,
 		PullID:    pr.ID,
 		Repo:      repo,
 		CreatedAt: createdAt,
