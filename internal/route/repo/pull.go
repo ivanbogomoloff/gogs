@@ -781,5 +781,8 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	//c.Data["IsSplitStyle"] = f.SplitStyle
 
 	log.Trace("Code comment for pull request %d created", pullRequest.ID)
+	if f.SplitStyle {
+			c.Success("repo/pulls/code_comment_wrap")
+	}
 	c.Success("repo/pulls/code_comment_wrap")
 }
