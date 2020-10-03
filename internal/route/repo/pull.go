@@ -20,6 +20,7 @@ import (
 	"gogs.io/gogs/internal/db"
 	"gogs.io/gogs/internal/form"
 	"gogs.io/gogs/internal/gitutil"
+	"gogs.io/gogs/internal/markup"
 )
 
 const (
@@ -402,6 +403,10 @@ func ViewPullFiles(c *context.Context) {
 		c.Error(err, "list comments")
 		return
 	}
+
+	for i := 0; i < len(comments); i++ {
+		comments[i].Comment = string(markup.Markdown(comments[i].Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+	}
 	c.Data["CodeComments"] = comments
 
 	c.Success(PULL_FILES)
@@ -766,21 +771,15 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 		c.NotFoundOrError(err, "get pull request by index")
 	}
 
-	//c.Data["Comment"] = string(markup.Markdown(CommentRaw, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
 	c.Data["IsSplitStyle"] = f.Split
-	//c.Data["CreatedStr"] = createdAt.Format(conf.Time.FormatLayout)
 
 	comment, err := db.NewPullRequestCodeComment(c.Repo.Repository, pullRequest, c.User, f.Comment, f.FileID, f.Line, f.SideID, time.Now())
 	if err != nil {
 		c.NotFoundOrError(err, "NewPullRequestCodeComment")
 	}
 
-	c.Data["Comment"] = comment
+	comment.Comment = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+  c.Data["Comment"] = comment
 
-	//c.Data["CommentMD"]   = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-	//c.Data["IsSplitStyle"] = f.SplitStyle
-
-	//log.Trace("Code comment for pull request %d created", pullRequest.ID)
-	//log.Trace("%d", comment.SideID)
 	c.Success("repo/pulls/code_comment_wrap")
 }
