@@ -79,7 +79,7 @@ Most of settings are obvious and easy to understand, but there are some settings
 - **HTTP Port**: Use port you want Gogs to listen on inside Docker container. For example, your Gogs listens on `3000` inside Docker, **and** you expose it by `10080:3000`, but you still use `3000` for this value.
 - **Application URL**: Use combination of **Domain** and **exposed HTTP Port** values (e.g. `http://192.168.99.100:10080/`).
 
-Full documentation of application settings can be found [here](https://gogs.io/docs/advanced/configuration_cheat_sheet.html).
+Full documentation of application settings can be found [here](https://github.com/gogs/gogs/blob/master/conf/app.ini).
 
 ### Container Options
 
@@ -102,6 +102,44 @@ This container have some options available via environment variables, these opti
       `false`
   - <u>Action:</u>
       Request crond to be run inside the container. Its default configuration will periodically run all scripts from `/etc/periodic/${period}` but custom crontabs can be added to `/var/spool/cron/crontabs/`.
+- **BACKUP_INTERVAL**:
+  - <u>Possible value:</u>
+      `3h`, `7d`, `3M`
+  - <u>Default:</u>
+      `null`
+  - <u>Action:</u>
+      In combination with `RUN_CROND` set to `true`, enables backup system.\
+      See: [Backup System](#backup-system)
+- **BACKUP_RETENTION**:
+  - <u>Possible value:</u>
+      `360m`, `7d`, `...m/d`
+  - <u>Default:</u>
+      `7d`
+  - <u>Action:</u>
+      Used by backup system. Backups older than specified in expression are deleted periodically.\
+      See: [Backup System](#backup-system)
+- **BACKUP_ARG_CONFIG**:
+  - <u>Possible value:</u>
+      `/app/gogs/example/custom/config`
+  - <u>Default:</u>
+      `null`
+  - <u>Action:</u>
+      Used by backup system. If defined, supplies `--config` argument to `gogs backup`.\
+      See: [Backup System](#backup-system)
+- **BACKUP_ARG_EXCLUDE_REPOS**:
+  - <u>Possible value:</u>
+      `test-repo1`, `test-repo2`
+  - <u>Default:</u>
+      `null`
+  - <u>Action:</u>
+      Used by backup system. If defined, supplies `--exclude-repos` argument to `gogs backup`.\
+      See: [Backup System](#backup-system)
+
+## Backup System
+Automated backups with retention policy:
+
+- `BACKUP_INTERVAL` controls how often the backup job runs and supports interval in hours (h), days (d), and months (M), eg. `3h`, `7d`, `3M`. The lowest possible value is one hour (`1h`).
+- `BACKUP_RETENTION` supports expressions in minutes (m) and days (d), eg. `360m`, `2d`. The lowest possible value is 60 minutes (`60m`).
 
 ## Upgrade
 
