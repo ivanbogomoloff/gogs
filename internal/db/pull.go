@@ -948,7 +948,7 @@ func PullRequestCodeComments(pr *PullRequest, isSplitStyle bool) ([]*PullRequest
 
 	// TODO fix this by agregate USER_IDS and query them WHERE IN condition once
 	for i := 0; i < len(comments); i++ {
-		comments[i].Poster, _ = GetUserByKeyID(comments[i].PosterID)
+		comments[i].Poster, _ = GetUserByID(comments[i].PosterID)
 		comments[i].IsSplitStyle = isSplitStyle
 	}
 	return comments, nil
