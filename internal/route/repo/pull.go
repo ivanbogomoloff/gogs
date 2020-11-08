@@ -307,6 +307,8 @@ func ViewPullFiles(c *context.Context) {
 	}
 	pull := issue.PullRequest
 
+	log.Trace("ViewPullFiles: pull.ID is %d", pull.ID)
+
 	var (
 		diffGitRepo   *git.Repository
 		startCommitID string
@@ -382,7 +384,7 @@ func ViewPullFiles(c *context.Context) {
 	c.Data["IsImageFileByIndex"] = commit.IsImageFileByIndex
 	c.Data["IsEnabledCommentsPullRequest"] = IsEnabledCommentsPullRequest() //todo move this settings to user db
     c.Data["RequireSimpleMDE"] = true
-	c.Data["CodeCommentLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(issue.Index) + "/code-comment"
+	c.Data["CodeCommentLink"] = c.Repo.RepoLink + "/pulls/" + com.ToStr(pull.ID) + "/code-comment"
 	// It is possible head repo has been deleted for merged pull requests
 	if pull.HeadRepo != nil {
 		c.Data["Username"] = pull.HeadUserName
@@ -400,7 +402,7 @@ func ViewPullFiles(c *context.Context) {
 	var comments []*db.PullRequestCodeComment
 	comments, err = db.PullRequestCodeComments(pull, isSplitStyle)
 	if err != nil {
-		c.Error(err, "list comments")
+		c.Error(err, "empty list comments")
 		return
 	}
 

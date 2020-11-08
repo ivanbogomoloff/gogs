@@ -935,7 +935,7 @@ func InitTestPullRequests() {
 func buildPullRequestCodeCommentsQuery(pr *PullRequest) *xorm.Session {
 	sess := x.NewSession()
 	sess.Where("pull_id = ?", pr.ID)
-
+	log.Trace("buildPullRequestCodeCommentsQuery: pr.ID is %d", pr.ID)
 	return sess
 }
 
@@ -945,6 +945,7 @@ func PullRequestCodeComments(pr *PullRequest, isSplitStyle bool) ([]*PullRequest
 	if err := sess.Find(&comments); err != nil {
 		return nil, fmt.Errorf("Find: %v", err)
 	}
+
 	// TODO fix this by agregate USER_IDS and query them WHERE IN condition once
 	for i := 0; i < len(comments); i++ {
 		comments[i].Poster, _ = GetUserByKeyID(comments[i].PosterID)
