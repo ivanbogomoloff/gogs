@@ -411,6 +411,8 @@ func ViewPullFiles(c *context.Context) {
 
 	c.Success(PULL_FILES)
 }
+
+// LOAD_ASSETS_FROM_DISK is needed
 func IsEnabledCommentsPullRequest() bool {
 	return true
 }
