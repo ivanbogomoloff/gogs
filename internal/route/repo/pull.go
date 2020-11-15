@@ -47,6 +47,10 @@ var (
 	}
 )
 
+type PullRequestCodeComment_Struct struct {
+	Comment *db.PullRequestCodeComment
+}
+
 func parseBaseRepository(c *context.Context) *db.Repository {
 	baseRepo, err := db.GetRepositoryByID(c.ParamsInt64(":repoid"))
 	if err != nil {
@@ -405,11 +409,14 @@ func ViewPullFiles(c *context.Context) {
 		c.Error(err, "empty list comments")
 		return
 	}
+	var commentsView = make([]PullRequestCodeComment_Struct, 0)
 
 	for i := 0; i < len(comments); i++ {
 		comments[i].Comment = string(markup.Markdown(comments[i].Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
+		comment := PullRequestCodeComment_Struct{Comment: comments[i]}
+		commentsView = append(commentsView, comment)
 	}
-	c.Data["CodeComments"] = comments
+	c.Data["CodeComments"] = commentsView
 
 	c.Success(PULL_FILES)
 }
@@ -783,7 +790,7 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	}
 
 	comment.Comment = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-  c.Data["Comment"] = comment
+  c.Data["Comment"] = PullRequestCodeComment_Struct{Comment: comment}
 
 	c.Success("repo/pulls/code_comment_wrap")
 }

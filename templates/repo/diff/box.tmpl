@@ -135,9 +135,9 @@
 													{{end}}
 												</tr>
 
-												{{range $ci, $comment := $.CodeComments}}
-													{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
-														{{template "repo/pulls/code_comment_tr_split_wrap" $comment}}
+												{{range $ci, $commentViewData := $.CodeComments}}
+													{{if $commentViewData.Comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
+														{{template "repo/pulls/code_comment_tr_split_wrap" $commentViewData }}
 													{{end}}
 												{{end}}
 
@@ -175,9 +175,9 @@
 														<pre><code class="{{if $highlightClass}}language-{{$highlightClass}}{{else}}nohighlight{{end}}">{{$section.ComputedInlineDiffFor $line}}</code></pre>
 													</td>
 												</tr>
-												{{range $ci, $comment := $.CodeComments}}
-													{{if $comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
-														{{template "repo/pulls/code_comment_tr_wrap" $comment}}
+												{{range $ci, $commentViewData := $.CodeComments}}
+													{{if $commentViewData.Comment.EqualToFileIndexAndLine $file.Index $line.LeftLine $line.RightLine}}
+														{{template "repo/pulls/code_comment_tr_wrap" $commentViewData}}
 													{{end}}
 												{{end}}
 											{{end}}

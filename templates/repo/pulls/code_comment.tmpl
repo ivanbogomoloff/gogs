@@ -1,14 +1,14 @@
-{{$comment := .}}
+{{$commentViewData := .}}
     <div
-         class="comment" id="comm-{{$comment.UUID}}"
-        data-commented-line-number="{{$comment.CodeLineAsString}}"
-        data-commented-file-id="{{$comment.FileID}}">
+         class="comment" id="comm-{{$commentViewData.Comment.UUID}}"
+        data-commented-line-number="{{$commentViewData.Comment.CodeLineAsString}}"
+        data-commented-file-id="{{$commentViewData.Comment.FileID}}">
       <div class="content">
         <div class="ui top attached header">
-          <a class="avatar" {{if gt $comment.PosterID 0}}href="{{$comment.Poster.HomeLink}}"{{end}}>
-            <img style="max-width: 30px" src="{{$comment.Poster.RelAvatarLink}}">
+          <a class="avatar" {{if gt $commentViewData.Comment.PosterID 0}}href="{{$commentViewData.Comment.Poster.HomeLink}}"{{end}}>
+            <img style="max-width: 30px" src="{{$commentViewData.Comment.Poster.RelAvatarLink}}">
           </a>
-          <span class="text grey"><a {{if gt $comment.PosterID 0}}href="{{$comment.Poster.HomeLink}}"{{end}}>{{$comment.Poster.DisplayName}}</a></span>
+          <span class="text grey"><a {{if gt $commentViewData.Comment.PosterID 0}}href="{{$commentViewData.Comment.Poster.HomeLink}}"{{end}}>{{$commentViewData.Comment.Poster.DisplayName}}</a></span>
           <div class="ui right actions">
               <!--<div class="item tag">item_tag</div>-->
             <!-- edit block here for admin or owners? -->
@@ -16,7 +16,7 @@
         </div>
         <div class="ui attached segment">
           <div class="render-content markdown has-emoji">
-            {{$comment.Comment|Str2HTML}}
+            {{$commentViewData.Comment.Comment|Str2HTML}}
           </div>
         </div>
       </div>
