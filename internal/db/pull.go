@@ -76,11 +76,10 @@ type PullRequestCodeComment struct {
 	UUID       string `xorm:"uuid UNIQUE"`
 	PosterID   int64
 	Poster     *User      `xorm:"-" json:"-"`
-	Comment    string
-	IsSplitStyle    bool  /*<- this property only for UI! - means from what style comment was inserted */
+	Comment    string  `xorm:"TEXT"`
 	CodeLine   int16
 	SideID     int16
-	FileID 	   string	  `xorm:"VARCHAR(80)"`
+	FileID 	   string	  `xorm:"VARCHAR(160)"`
 	PullID     int64
 	Repo 	   *Repository `xorm:"-" json:"-"`
 	CreatedAt  time.Time  `json:"created_at"`
@@ -949,7 +948,6 @@ func PullRequestCodeComments(pr *PullRequest, isSplitStyle bool) ([]*PullRequest
 	// TODO fix this by agregate USER_IDS and query them WHERE IN condition once
 	for i := 0; i < len(comments); i++ {
 		comments[i].Poster, _ = GetUserByID(comments[i].PosterID)
-		comments[i].IsSplitStyle = isSplitStyle
 	}
 	return comments, nil
 }
