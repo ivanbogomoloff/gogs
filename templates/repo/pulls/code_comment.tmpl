@@ -8,7 +8,7 @@
           <a class="avatar" {{if gt $commentViewData.Comment.PosterID 0}}href="{{$commentViewData.Comment.Poster.HomeLink}}"{{end}}>
             <img style="max-width: 30px" src="{{$commentViewData.Comment.Poster.RelAvatarLink}}">
           </a>
-          <span class="text grey"><a {{if gt $commentViewData.Comment.PosterID 0}}href="{{$commentViewData.Comment.Poster.HomeLink}}"{{end}}>{{$commentViewData.Comment.Poster.DisplayName}}</a></span>
+          <span class="text grey"><a {{if gt $commentViewData.Comment.PosterID 0}}href="{{$commentViewData.Comment.Poster.HomeLink}}"{{end}}>{{$commentViewData.Comment.Poster.DisplayName}}</a> - {{ $commentViewData.CommentedAt | Safe}} </span> 
           <div class="ui right actions">
               <!--<div class="item tag">item_tag</div>-->
             <!-- edit block here for admin or owners? -->

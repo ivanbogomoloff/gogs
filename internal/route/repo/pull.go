@@ -21,6 +21,7 @@ import (
 	"gogs.io/gogs/internal/form"
 	"gogs.io/gogs/internal/gitutil"
 	"gogs.io/gogs/internal/markup"
+	"gogs.io/gogs/internal/tool"
 )
 
 const (
@@ -49,6 +50,7 @@ var (
 
 type PullRequestCodeComment_Struct struct {
 	Comment *db.PullRequestCodeComment
+	CommentedAt string
 }
 
 func parseBaseRepository(c *context.Context) *db.Repository {
@@ -413,7 +415,10 @@ func ViewPullFiles(c *context.Context) {
 
 	for i := 0; i < len(comments); i++ {
 		comments[i].Comment = string(markup.Markdown(comments[i].Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-		comment := PullRequestCodeComment_Struct{Comment: comments[i]}
+		comment := PullRequestCodeComment_Struct{
+			Comment: comments[i],
+			CommentedAt: c.Tr("%s", tool.TimeSince(comments[i].CreatedAt, c.Locale.Language())),
+		}
 		commentsView = append(commentsView, comment)
 	}
 	c.Data["CodeComments"] = commentsView
@@ -790,7 +795,10 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	}
 
 	comment.Comment = string(markup.Markdown(comment.Comment, c.Repo.RepoLink, c.Repo.Repository.ComposeMetas()))
-  c.Data["Comment"] = PullRequestCodeComment_Struct{Comment: comment}
+  c.Data["Comment"] = PullRequestCodeComment_Struct{
+		Comment: comment,
+		CommentedAt: c.Tr("%s", tool.TimeSince(comment.CreatedAt, c.Locale.Language())),
+	}
 
 	c.Success("repo/pulls/code_comment_wrap")
 }
