@@ -241,8 +241,8 @@
 	  <div id="pr-comments-templates" style="display:none">
 			<!-- Comment input form -->
 			{{/* TODO on split style form must correct render */}}
-			<div id="comment-code-line-form" style="display: none">
-				<form class="ui form" id="comment-form" action="{{.CodeCommentLink}}" method="post">
+			<div class="comment-code-line-form" style="display: none">
+				<form class="ui form" action="{{.CodeCommentLink}}" method="post">
 					<div class="field">
 						<div class="ui top attached tabular menu" data-write="write" data-preview="preview">
 							<a class="active item" data-tab="write">{{.i18n.Tr "repo.issues.create_comment"}}</a>
@@ -333,7 +333,7 @@
 				  }
 			}
 			let tpl_container = $('#pr-comments-templates');
-			let add_comment_form = tpl_container.find('#comment-code-line-form').parent().html();
+			let add_comment_form = tpl_container.find('.comment-code-line-form').parent().html();
 			let add_btn = $('.add-comment-btn');
 
 			let code_diff_table_trs = $('.lines-code');
@@ -364,6 +364,10 @@
 				let wrap = '<tr data-comment-line-number="'+selected_line_num+'" id="file-'+file_id+'-ccl-line-'+selected_line_num+'" class="comment-code-line"><td class="comment-code-line-wrapper" colspan="'+col_span+'">'+comment_block.html()+'</td></tr>';
 				hovered_tr.after(wrap);
 				let insertedCommentBlockTextArea = $('tr[data-comment-line-number="'+selected_line_num+'"] textarea');
+				let insertedForm =  $('tr[data-comment-line-number="'+selected_line_num+'"] form');
+				let uiPageContainerWidth =  $('.ui.container').first().css('width');
+				insertedForm.attr('style', 'padding: 0 15px; width: ' + uiPageContainerWidth);
+
 				let cancelButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .cancel-btn');
 				let saveButton = $('tr[data-comment-line-number="'+selected_line_num+'"] .save-btn');
 				cancelButton.on('click', function() {
