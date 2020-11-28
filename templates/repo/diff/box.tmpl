@@ -165,7 +165,7 @@
 														{{if $.IsEnabledCommentsPullRequest}}
 														<button
 														data-file-id="{{if $line.RightLine}}{{$file.Index}}{{else if $line.LeftLine}}{{$file.Index}}{{end}}"
-														data-line-side="{{if $line.RightLine}}2{{else if $line.LeftLine}}{{$line.LeftLine}}{{end}}"
+														data-line-side="{{if $line.RightLine}}2{{else if $line.LeftLine}}1{{$line.LeftLine}}{{end}}"
 														data-line-number="{{if $line.RightLine}}{{$line.RightLine}}{{end}}"
 														class="add-comment-btn ui compact icon mini button"
 														style="display: none"

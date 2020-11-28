@@ -90,11 +90,13 @@ type PullRequestCodeComment struct {
 func (comment *PullRequestCodeComment) EqualToFileIndexAndLine(fileID string, ll int, rl int) bool {
 	if comment.FileID == fileID  {
 		lineStr := fmt.Sprintf("%d", comment.CodeLine)
-		if fmt.Sprintf("%d", rl) == lineStr  {
-			return true
-		} else if fmt.Sprintf("%d", ll) == lineStr {
+		if ll > 0 && comment.SideID == 1 && fmt.Sprintf("%d", ll) == lineStr {
 			return true
 		}
+		if rl > 0 && comment.SideID == 2 && fmt.Sprintf("%d", rl) == lineStr  {
+			return true
+		}
+
 		return false
 	}
 
@@ -102,7 +104,7 @@ func (comment *PullRequestCodeComment) EqualToFileIndexAndLine(fileID string, ll
 }
 
 func (comment *PullRequestCodeComment) CodeLineAsString() string {
-	return "test"
+	return fmt.Sprintf("%d", comment.CodeLine)
 }
 
 func (pr *PullRequest) BeforeUpdate() {

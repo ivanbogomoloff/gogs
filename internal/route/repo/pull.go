@@ -786,6 +786,11 @@ func CodeComment(c *context.Context, f form.CodeComment) {
 	if err != nil {
 		c.NotFoundOrError(err, "get pull request by index")
 	}
+	
+	// I dont understand what is i think it necessary this
+	if(c.Written()) {
+		return
+	}
 
 	c.Data["IsSplitStyle"] = f.Split
 
